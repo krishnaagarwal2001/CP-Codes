@@ -1,0 +1,14 @@
+
+ll dfs(ll u, ll p) {
+    for (auto v : tree[u])
+        if (v != p) sub[u] += dfs(v, u);
+
+    return sub[u] + 1;
+}
+
+ll centroid(ll u, ll p) {
+    for (auto v : tree[u])
+        if (v != p and sub[v] > n/2) return centroid(v, u);
+
+    return u;
+}

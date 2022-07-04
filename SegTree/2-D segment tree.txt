@@ -1,0 +1,103 @@
+//Q-->given an array of n elements and there are two types of queries. range query-> Given {l,r,x,y} return the sum of elements a[i] such that l<=i<=r and x<=a[i]<=y. Point update-> a[pos]=val
+// #include <bits/stdc++.h>
+ 
+#include <algorithm>
+#include <iostream>
+#include <vector>
+ 
+using namespace std;
+ 
+const int N = 3e4 + 10;
+const int MAX = 1e4 + 10;
+const int Q = 2e5 + 10;
+const int LOGN = 16;
+// Internal sparse segment tree. 
+struct Node {
+  int lc, rc, sum;
+} ST[LOGN][Q * LOGN];
+int root[4 * N], blen[LOGN], A[N], n;
+ 
+int update_internal(int pos, int add, int l, int r, int id, Node* ST,
+                    int& blen) {
+  if (pos < l || pos >= r) return id;
+  if (!id) id = ++blen;
+  if (l == r - 1) {
+    ST[id].sum += add;
+    return id;
+  }
+  int mid = l + (r - l) / 2;
+  int &L = ST[id].lc, &R = ST[id].rc;
+  L = update_internal(pos, add, l, mid, L, ST, blen);
+  R = update_internal(pos, add, mid, r, R, ST, blen);
+  ST[id].sum = ST[L].sum + ST[R].sum;
+  return id;
+}
+ 
+int query_internal(int X, int Y, int l, int r, int id, Node* ST) {
+  if (!id || Y <= l || r <= X) return 0;
+  if (l >= X && r <= Y) return ST[id].sum;
+  int mid = l + (r - l) / 2;
+  return query_internal(X, Y, l, mid, ST[id].lc, ST) +
+         query_internal(X, Y, mid, r, ST[id].rc, ST);
+}
+ 
+void build(int l = 1, int r = n + 1, int x = 1, int lvl = 0) {
+  for (int i = l; i < r; i++) {
+    root[x] = update_internal(A[i], 1, 1, MAX, root[x], ST[lvl], blen[lvl]);
+  }
+  if (l == r - 1) return;
+  int mid = (l + r) >> 1;
+  int lc = (x << 1);
+  int rc = (x << 1) | 1;
+  build(l, mid, lc, lvl + 1);
+  build(mid, r, rc, lvl + 1);
+}
+ 
+int query(int L, int R, int K, int l = 1, int r = n + 1, int x = 1,
+          int lvl = 0) {
+  if (r <= L || R <= l) return 0;
+  if (l >= L && r <= R) {
+    return query_internal(K + 1, MAX, 1, MAX, root[x], ST[lvl]);
+  }
+  int mid = (l + r) >> 1;
+  int lc = (x << 1);
+  int rc = (x << 1) | 1;
+  return query(L, R, K, l, mid, lc, lvl + 1) +
+         query(L, R, K, mid, r, rc, lvl + 1);
+}
+ 
+void update(int pos, int val, int l = 1, int r = n + 1, int x = 1,
+            int lvl = 0) {
+  if (pos < l || pos >= r) return;
+  root[x] = update_internal(A[pos], -1, 1, MAX, root[x], ST[lvl], blen[lvl]);
+  root[x] = update_internal(val, +1, 1, MAX, root[x], ST[lvl], blen[lvl]);
+  if (l == r - 1) return void(A[pos] = val);
+  int mid = (l + r) >> 1;
+  int lc = (x << 1);
+  int rc = (x << 1) | 1;
+  update(pos, val, l, mid, lc, lvl + 1);
+  update(pos, val, mid, r, rc, lvl + 1);
+}
+ 
+int main() {
+  scanf("%d", &n);
+  for (int i = 1; i <= n; i++) {
+    scanf("%d", A + i);
+  }
+  build();
+  int q;
+  scanf("%d", &q);
+  while (q--) {
+    int t;
+    scanf("%d", &t);
+    if (t == 0) {
+      int pos, val;
+      scanf("%d %d", &pos, &val);
+      update(pos, val);
+    } else {
+      int i, j, k;
+      scanf("%d %d %d", &i, &j, &k);
+      printf("%d\n", query(i, j + 1, k));
+    }
+  }
+}

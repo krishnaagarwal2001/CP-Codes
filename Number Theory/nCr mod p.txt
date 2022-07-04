@@ -1,0 +1,24 @@
+ll modinv(ll x)
+{
+    return powmod(x,mod-2);
+}
+const ll man=1000005;
+ll fact[man];
+void precomputefact()
+{
+    fact[0]=1;
+    fact[1]=1;
+    for(ll i=2;i<man;i++)
+    {
+        fact[i]=(fact[i-1]*i)%mod;
+    }
+}
+ 
+ll C(ll n,ll r)
+{
+    if(r<0||r>n)return 0;
+    ll ans = fact[n];
+	ans *= modinv((fact[r]*fact[n - r])%mod);
+	ans %= mod;
+	return ans;
+}

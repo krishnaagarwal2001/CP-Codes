@@ -1,0 +1,63 @@
+//b=sqrt(n)+1;
+
+void build(vll& sr,vll& a)
+    {
+        ll n=sz(a),b=sz(sr);
+        
+        rep(i,0,n)
+        {
+            if(a[i]>k)
+            {
+                sr[i/b]++;
+            }
+        }
+    }
+    
+    void update(vll& sr,vll& a,ll pos,ll val)
+    {   
+        ll b=sz(sr);
+        if(a[pos]>k)
+        {
+            sr[pos/b]--;
+        }
+        a[pos]=val;
+        
+        if(a[pos]>k)
+        {
+            sr[pos/b]++;
+        }
+    }
+    
+    ll query(vll& sr,vll& a,ll l,ll r)
+    {
+        ll ans=0;
+        ll b=sz(sr);
+        
+        ll l_block=l/b,r_block=r/b;
+        ll l_end=l_block*b+b-1,r_st=r_block*b;
+        
+        for(int i=l;i<=min(r,l_end);++i)
+        {
+            if(a[i]>k)
+            {
+                ans++;
+            }
+        }
+        
+        if(l_block==r_block)
+        return ans;
+        
+        for(int i=r;i>=max(l,r_st);i--)
+        {
+            if(a[i]>k)
+            {
+                ans++;
+            }
+        }
+        
+        rep(i,l_block+1,r_block)
+        ans+=(sr[i]);
+        
+        
+        return ans;
+    }

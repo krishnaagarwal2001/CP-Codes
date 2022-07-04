@@ -1,0 +1,32 @@
+vvl mult(vvl a,vvl b)
+    {   
+        ll n=sz(a);
+        vvl ans(n,vll(n,0));
+ 
+        rep(i,0,n)
+        {
+            rep(j,0,n)
+            {
+                rep(k,0,n)
+                {   
+                    a[i][k]%=mod;
+                    b[k][j]%=mod;
+                    ans[i][j]=(ans[i][j]+(a[i][k]*b[k][j])%mod)%mod;
+                }
+            }
+        }
+ 
+        return ans;
+    }
+    vvl power(vvl mat,ll p)
+    {
+        if(p==1) return mat;
+ 
+        vvl ans=power(mat,p/2);
+        ans=mult(ans,ans);
+ 
+        if(p%2)
+            return mult(ans,mat);
+        else
+            return ans;
+    }

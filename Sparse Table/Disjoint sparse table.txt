@@ -1,0 +1,61 @@
+class DST
+{	
+	public:
+		ll dp[22][1000005];
+		ll size,maxlev;
+		void init(vll &a)						//nlogn....preprocessing
+		{	
+			size=(sz(a));
+			size = n;
+			maxlev = __builtin_clz(n) ^ 31;		
+			if( (1<<maxlev) != n)
+			    size = 1<<++maxlev;
+
+			build_dst(a,0,sz(a)-1);
+		}
+		void build_dst(vll &a,ll l,ll r,ll level=0)
+		{
+			ll m=(l+r)/2;
+			if(l+1==r)
+			{
+				dp[level][m]=a[m];
+				return;
+			}
+
+			dp[level][m-1]=a[m-1];
+			for(ll i=m-2;i>=l;--i) dp[level][i]=a[i]+dp[level][i+1];
+
+			dp[level][m]=a[m];
+			for(ll i=m+1;i<r;++i) dp[level][i]=a[i]+dp[leve][i-1];
+
+			build(l,m,level+1);
+			build(m,r,level+1);
+		}
+
+		ll query(vll &a,ll x, ll y)				//O(1)
+		{
+		  if(x == y)
+		    return A[x];
+		  ll k2 = __builtin_clz(x^y) ^ 31;
+		  ll lev = maxlev - 1 - k2;
+		  ll ans = dp[lev][x]+dp[lev][y];
+		  return ans;
+		}
+
+		// ll query(vll &a,ll x,ll y,ll l=0,ll r=size-1;ll level=0)	//O(logn)
+		// {
+		// 	if(x==y)
+		// 		return a[x];
+
+		// 	ll mid=(l+r)/2;
+
+		// 	if(x<mid and mid<=y)
+		// 		return dp[level][x]+dp[level][y];
+
+		// 	if(y<mid)
+		// 		return query(a,x,y,l,mid,level+1);
+		// 	else return query(a,x,y,mid,r,level+1);
+		// }
+
+};
+
