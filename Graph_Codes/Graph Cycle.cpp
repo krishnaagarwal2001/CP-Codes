@@ -14,7 +14,12 @@ vector<ll>vis(n+1,0);
                     dfs(it);
                 }
                 else if(vis[it]==1)
-                {   
+                {  	
+                	if(it==st)
+                    {
+                        //self loop
+                        continue;
+                    }
                     vll cycle;
                     ll cur=st;
                     cycle.pb(cur);
