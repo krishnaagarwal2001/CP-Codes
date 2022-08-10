@@ -1,134 +1,103 @@
-// Original Tree
+ll n,q;
+        cin>>n>>q;
 
-vector<ll>g[N];
-ll sub[N],nn,U[N],V[N],W[N],deleted[N];
+        vll g[n+1];
 
-// Centroid Tree
-ll par[N],level[N],dist[20][N];
-//dist[LOGN][N]: dist[lvl][x]: distance between (Centroid at level lvl) and (x) in original tree
-ll adj(ll x,ll e) { return U[e]^V[e]^x;}	//adjacent vertex of x on edge e
+        rep(i,0,n-1)
+        {
+            ll u,v;
+            cin>>u>>v;
+            g[u].pb(v);
+            g[v].pb(u);
+        }
 
-void dfs_sz(ll u,ll p)
-{
-	sub[u]=1;
-	nn++;
+        vll level(n+1,0);
+        vll subtree_size(n+1,0);
+        vll removed(n+1,0);
+        vll centroid_par(n+1,0);
+        vvl dist(19,vll(n+1));
 
-	for(auto e:g[u])
-	{
-		ll w=adj(u,e);
-		if(w!=p and !deleted[e])
-		{
-			dfs_sz(w,u);
-			sub[u]+=sub[w];
-		}
-	}
-}
+        function<void(ll,ll)> get_subtree_size=[&](ll node,ll p)
+        {
+            subtree_size[node]=1;
+            for(auto it:g[node])
+            {
+                if(it!=p and !removed[it])
+                {
+                    get_subtree_size(it,node);
+                    subtree_size[node]+=subtree_size[it];
+                }
+            }
+        };
 
-ll find_centroid(ll u,ll p)
-{
-	for(auto e:g[u])
-	{
-		if(deleted[e]) continue;
+        function<ll(ll,ll,ll)> get_centroid=[&](ll node,ll ms,ll p)
+        {
+            for(auto it:g[node])
+            {
+                if(it!=p and !removed[it])
+                {
+                    if(subtree_size[it]>ms/2)
+                        return get_centroid(it,ms,node);
+                }
+            }
+            return node;
+        };
 
-		ll w=adj(u,e);
-		if(w!=p and sub[w]>nn/2)
-			return find_centroid(w,u);
-	}
+        function<void(ll,ll,ll,ll)> get_dist=[&](ll node,ll p,ll d,ll level)
+        {
+            dist[level][node]=d;
 
-	return u;
-}
+            for(auto it:g[node])
+            {   
+                if(it!=p and !removed[it])
+                    get_dist(it,node,d+1,level);
+            }
+        };
 
-void add_edge_in_centroid_tree(ll p,ll c)
-{
-	par[c]=p;
-	level[c]=level[p]+1;
-}
+        function<void(ll,ll)> centroid_decomposition=[&](ll node,ll p)
+        {   
+            get_subtree_size(node,node);
+            ll c=get_centroid(node,subtree_size[node],node);
+            centroid_par[c]=p;
+            level[c]=level[p]+1;
+            // log(c,level[c])
+            get_dist(c,c,0,level[c]);
+            
+            removed[c]=1;
+            for(auto it:g[c])
+            {
+                if(!removed[it])
+                    centroid_decomposition(it,c);
+            }
+        };
 
-void dfs(ll u,ll p,ll lvl)
-{
-	for(auto e:g[u])
-	{
-		ll w=adj(u,e);
-		if(w==p or deleted[e]) continue;
+        centroid_decomposition(1,0);
 
-		dist[lvl][w]=dist[lvl][u]+W[e];
-		dfs(w,u,lvl);
-	}
-}
+        function<ll(ll,ll)> get_lca=[&](ll u,ll v)
+        {   
+            // log(u,v)
+            while(u!=v)
+            {
+                if(level[u]>level[v])
+                    swap(u,v);
+                v=centroid_par[v];
+                // log(u,v)
+            }
+            // log(u)
+            return u;
+        };
 
-void decompose(ll root,ll p=-1)
-{
-	nn=0;
+        function<ll(ll,ll)> ans=[&](ll u,ll v)
+        {
+            ll lca_level=level[get_lca(u,v)];
+            // log(u,v,get_lca(u,v),lca_level)
+            return dist[lca_level][u]+dist[lca_level][v];
+        };
 
-	//Compute subtree sizes and no of node nn in this tree
-	dfs_sz(root,root);
+        while(q--)
+        {
+            ll u,v;
+            cin>>u>>v;
 
-	//find centroid of tree and make it the new root
-	ll centroid=find_centroid(root,root);
-	if(p==-1) p=centroid;
-	add_edge_in_centroid_tree(p,centroid);
-
-	//process the O(N) paths from centroid to all leaves in this component
-	dfs(centroid,centroid,level[centroid]);
-
-	//delete the adjacent edges of the centroid
-	//recursively decompose the subtrees
-	for(auto e:g[centroid])
-	{
-		if(deleted[e])
-			continue;
-
-		deleted[e]=1;
-		ll w=adj(centroid,e);
-		decompose(w,centroid);
-	}
-
-}
-
-ll lca_level(ll x,ll y)
-{	
-	//O(logN)
-	while(x!=y)
-	{
-		if(level[x]>level[y]) swap(x,y);
-		y=par[y];
-	}
-
-	return x;
-}
-
-//MAIN FUNCTION
-
-ll compute_distance(ll x,ll y)
-{
-	ll lca_lvl=level[lca_level(x,y)];
-
-	return dist[lca_lvl][x]+dist[lca_lvl][y];
-}
-
-int main()
-{
-	ll n;
-	cin>>n;
-
-	rep(i,1,n)
-	{
-		cin>>U[i]>>V[i]>>W[i];
-		g[U[i]].pb(i);
-		g[V[i]].pb(i);
-	}
-
-	decompose(1);
-
-	ll q;
-	cin>>q;
-
-	while(q--)
-	{
-		ll x,y;
-		cin>>x>>y;
-
-		cout<<compute_distance(x,y);
-	}
-}
-
+            cout<<ans(u,v)<<endl;
+        }

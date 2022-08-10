@@ -55,7 +55,7 @@
     void precompute_lca()
     {   
         level[1]=0;
-        dfs(1,0);
+        dfs_lca(1,0);
         rep(i,1,20)
         {
             rep(x,1,n+1)
@@ -83,7 +83,7 @@
             g[i].pb(par[i]);
         }
 
-        dfs(1,0);
+        precompute_lca();
         
 
         while(q--)
