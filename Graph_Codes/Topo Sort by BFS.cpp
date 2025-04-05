@@ -1,3 +1,5 @@
+//also known as Kahn's Algo
+
 vll topo_by_bfs()		//If is lexicographically smallest--use priority queue
 {
     queue<ll>q;
