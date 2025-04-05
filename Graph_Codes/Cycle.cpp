@@ -15,6 +15,7 @@ vector<ll>vis(n+1,0);
                 }
                 else if(vis[it]==1)
                 {  	
+					//back edge
                 	if(it==st)
                     {
                         //self loop
@@ -37,6 +38,9 @@ vector<ll>vis(n+1,0);
      
                     exit(0);
                 }
+				else if(vis[it]==2){
+					//cross edge
+				}
             }
             vis[st]=2;
             
