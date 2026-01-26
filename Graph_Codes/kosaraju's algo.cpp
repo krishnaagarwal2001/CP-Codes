@@ -13,6 +13,8 @@
         }
 
         vector<bool>vis(n+1,false);
+        vector<ll>scc(n+1);
+
         vll order;
         vll component[n+1];                     // To store CC
 
@@ -34,7 +36,7 @@
         {
             vis[node]=true;
             component[idx].pb(node);
-
+            scc[node] = idx;
             for(auto it:rg[node])
             {
                 if(!vis[it])
@@ -60,5 +62,15 @@
             {
                 dfs2(u,num);            //new dfs --> new component
                 num++;
+            }
+        }
+
+        vector<set<ll>>condensedGraph(num);
+
+        for(int i=1;i<=n;i++){
+            for(auto v: g[i]){
+                if(scc[v] != scc[i]){
+                    condensedGraph[scc[i]].insert(scc[v]);
+                }
             }
         }
