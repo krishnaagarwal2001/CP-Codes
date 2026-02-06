@@ -11,7 +11,7 @@ struct Manacher{
         int l = 1, r = 1;
 
         for(int i=1;i<n;i++){
-            p[i] = max(1,min(r-i,p[l+r-1]));
+            p[i] = max(1,min(r-i,p[l+r-i]));
 
             while(i+p[i]<n and i-p[i]>=0 and s[i+p[i]] == s[i-p[i]]){
                 p[i]++;
