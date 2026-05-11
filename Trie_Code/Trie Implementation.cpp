@@ -1,16 +1,16 @@
- class Node {
-public:
-	char ch;
-	bool isTerminal;
-	unordered_map<char, Node*> children;
-	Node(char ch) {
-		this->ch = ch;
-		this->isTerminal = false;
-	}
+class Node {
+	public:
+		char ch;
+		bool isTerminal;
+		unordered_map<char, Node*> children;
+		Node(char ch) {
+			this->ch = ch;
+			this->isTerminal = false;
+		}
 };
  
 class Trie {
-public:
+	public:
 	Node *root;
  
 	Trie() {
@@ -18,35 +18,32 @@ public:
 	}
  
 	void insert(string str) {
-		Node *temp = root;
+		Node *curNode = root;
 		for(int i = 0; i < str.size(); i++) {
 			char ch = str[i];
-			if(temp->children.count(ch)) {
-
-				temp = temp->children[ch];
-			} else {
-				Node *n = new Node(ch);
-				temp->children[ch] = n;
-				temp = n;
-			}
+			if(curNode->children.find(ch) == curNode->children.end()) {
+				curNode->children[ch] = new Node(ch);
+			} 
+			curNode = curNode->children[ch];
 		}
-		temp->isTerminal = true;
-		return;
+		curNode->isTerminal = true;
 	}
 
 	bool search(string str)
 	{
-		Node *temp = root;
+		Node *curNode = root;
+
 		for(int i = 0; i < str.size(); i++) {
 			char ch = str[i];
-			if(temp->children.count(ch)) {
-				
-				temp = temp->children[ch];
-			} else {
+
+			if(curNode->children.find(ch) == curNode->children.end()) {
 				return false;
 			}
+
+			curNode = curNode->children[ch];
 		}
-		return temp->isTerminal;
+
+		return curNode->isTerminal;
 	}
 
 	void dfs(Node *root,string pre,string op)
