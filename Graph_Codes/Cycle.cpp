@@ -38,6 +38,8 @@ void dfs(int node, int par){
             //node -- v is a crosss edge
         }
     }
+
+	color[node] = 3;
 }
 
 int main(){
