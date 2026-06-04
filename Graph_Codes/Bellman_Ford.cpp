@@ -1,40 +1,83 @@
-ll bellman_ford(ll src)
-    {
-        vll d(n+1,-inf);
- 
-        d[src]=0;
-        vll old=d;
-        rep(i,0,n-1)
-        {   
-            old=d;
-            for(auto it:g)
-            {   
-                ll u=it[0],v=it[1],w=it[2];
-                if(d[u]==inf)
+//https://cses.fi/problemset/task/1673/
+
+#include<bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+
+ll INF = 1e18;
+
+int main(){
+    ll n,m;
+    cin>>n>>m;
+    
+    vector<pair<ll,ll>>g[n+1];
+    
+    for(int i=0;i<m;i++){
+        ll u,v,w;
+        cin>>u>>v>>w;
+        
+        g[u].push_back(make_pair(v,-w)); // negative, as we have to find max distance to n
+    }
+    
+    vector<ll>dis(n+1,INF), oldDis(n+1,INF);
+        
+    dis[1] = 0;
+    for(ll iteration = 0; iteration<n-1; iteration++){
+        oldDis = dis;
+        for(ll node = 1; node<=n; node++){
+            for(pair<ll,ll> edge: g[node]){
+                if(dis[node] == INF){
                     continue;
-                d[v]=min(d[v],d[u]+w);
-            }
-        }
- 
-        rep(i,0,n-1)
-        {   
-            old=d;
-            for(auto it:g)
-            {   
-                ll u=it[0],v=it[1],w=it[2];
-                if(d[u]==inf)
-                    continue;
-                if(d[u]+w<d[v])
-                {
-                    d[v]=-inf;          //negative cycle present
                 }
                 
+                dis[edge.first] = min(dis[edge.first], dis[node] + edge.second);
             }
         }
-        
-        //deb(old[n])
-        if(d[n]!=-inf)
-            return d[n];
-        else
-            return -1;
     }
+    
+    bool negativeCycle = false;
+    
+    vector<ll>cycleNodes;
+    
+    for(ll node = 1; node<=n; node++){
+            for(pair<ll,ll> edge: g[node]){
+                if(dis[node] == INF){
+                    continue;
+                }
+                
+                if(dis[node] + edge.second < dis[edge.first]){
+                    cycleNodes.push_back(edge.first);
+                }
+            }
+    }
+    
+    vector<bool>vis(n+1,false);
+    
+    queue<int>q;
+    
+    for(ll node: cycleNodes){
+        q.push(node);
+    }
+    
+    // if from any negative cycle node, we reach destination, then min dis to n is -INF
+    while(q.size()){
+        ll node = q.front();
+        q.pop();
+        
+        for(pair<ll,ll> edge: g[node]){
+            if(!vis[edge.first]){
+                vis[edge.first] = true;
+                q.push(edge.first);
+            }
+        }
+    }
+    
+    if(vis[n]){
+        cout<<-1<<endl;
+        return 0;
+    }
+    
+    cout<<-dis[n]<<endl;
+    
+}
