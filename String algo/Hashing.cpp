@@ -17,11 +17,12 @@ struct DoubleHash {
     void init(const string &s) {
         int n = s.size();
         
+        h1.clear();
+        h2.clear();
+        p1.clear();
+        p2.clear();
+            
         if(n == 0){
-            h1.clear();
-            h2.clear();
-            p1.clear();
-            p2.clear();
             return;
         }
         
@@ -30,7 +31,7 @@ struct DoubleHash {
         p1.resize(n);
         p2.resize(n);
 
-        h1[0] = h2[0] = s[0] - 'a' + 1;
+        h1[0] = h2[0] = s[0] - 'a' + 1;     //important 1 based indexing else wrong ans
         p1[0] = p2[0] = 1;
 
         for (int i = 1; i < n; i++) {
@@ -45,7 +46,7 @@ struct DoubleHash {
     }
 
     // Returns hash of s[l...r] (0-indexed, inclusive)
-    pair<ll, ll> getHash(int l, int r) const {
+    pair<ll, ll> getHash(int l, int r){
         ll x1 = h1[r];
         ll x2 = h2[r];
 
