@@ -40,6 +40,16 @@ struct Manacher{
         return p[pos] - 1;
     }
 
+    pair<int,int> getLongestPalindrome(int center, bool odd) {
+        int len = getLongestPalindromeLength(center, odd);
+
+        if (odd) {
+            return {center - len/2, center + len/2};
+        } else {
+            return {center - len/2 + 1, center + len/2};
+        }
+    }
+
     bool checkPalindrome(int l, int r){
         return ((r-l+1)<=getLongestPalindromeLength( (l+r)/2, l%2 == r%2 ));
     }
